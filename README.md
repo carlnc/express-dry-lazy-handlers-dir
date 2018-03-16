@@ -65,8 +65,6 @@ app.use((err, req, res, next) => {
 app.listen(3000, () => console.log('Example app listening on port 3000!'))
 ```
 
-
-
 ### Example
 
 Given the following files and folders
@@ -83,8 +81,8 @@ module.exports.get = (req, res, next) => {
     const userId   = req.params.users;
     const sportId  = req.params.sports;
 
-    if (! widgetId) return res.redirect('../../');      // back to /widgets/
-    if (!userId)    return res.redirect('../');         // back to /widgets/users/
+    if (!widgetId) return res.redirect('../../');       // back to /widgets/
+    if (!userId)   return res.redirect('../');          // back to /widgets/users/
 
     const result = !sportId
         ? getSports({widgetId, userId})                 // get listing of all sports available
@@ -125,7 +123,28 @@ Because `sports` is a folder, a request for `http://localhost:3000/widgets/users
 An alternative method would be to have a `widgets/users/sports.js` module however that means working harder when trying to use relative links (ie: `./`).
 
 
+### Template only 
 
+It is also possible to render the template directly without a module to feed it data.
+
+Given the following template
+
+* `webroot/login.hbs`
+
+The following incoming requests all map to the template `webroot/login.hbs`.
+
+* `http://localhost:3000/login` (no params)
+* `http://localhost:3000/login/param1` (req.params.login = 'param1')
+
+`req.query` and `req.params` are exposed to the template (only when no .js module was found).
+
+```handlebars
+{{#if (compare req.params.login '==' 'method1')}}
+    .. show type 1 login ..
+{{else}}
+    .. show default login ..
+{{/if}}
+```
 
 
 ## Test Results

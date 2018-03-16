@@ -49,7 +49,7 @@ function middleware(options) {
                     } else if (!result || result === res) {
                         return; // Assume the caller has called res.send()
 
-                    } else if (resolved.extensions.includes(viewExtension)) {
+                    } else if (result instanceof Object && resolved.extensions.includes(viewExtension)) {
                         // Handler returned an object for us to send to their matching template
                         return res.render(resolved.filePath, result);
                     } else {
@@ -59,7 +59,10 @@ function middleware(options) {
 
                 } else { // just render the view without handler data
                     // There was no handler, and we're just rendering the template as is.
-                    return res.render(resolved.filePath, result || {});
+                    return res.render(resolved.filePath, {
+                        params: req.params,
+                        query:  req.query,
+                    });
                 }
 
                 // else we didn't find a handler ... 404
