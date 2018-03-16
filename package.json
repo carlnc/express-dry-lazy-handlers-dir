@@ -1,0 +1,36 @@
+{
+  "name": "express-dry-lazy-handlers-dir",
+  "version": "0.0.1",
+  "description": "Automatically register a folder of route handlers",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha --reporter spec --bail --check-leaks test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carlnc/express-dry-lazy-handlers-dir.git"
+  },
+  "author": "Carl Napier-Cook",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/carlnc/express-dry-lazy-handlers-dir/issues"
+  },
+  "homepage": "https://github.com/carlnc/express-dry-lazy-handlers-dir#readme",
+  "devDependencies": {
+    "eslint": "^4.18.2",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-import": "^2.9.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "mocha": "^5.0.4",
+    "should": "^13.2.1"
+  },
+  "engines": {
+    "node": ">= 8.9.1"
+  },
+  "dependencies": {
+    "urijs": "^1.19.1"
+  }
+}
