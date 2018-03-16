@@ -1,6 +1,6 @@
 {
   "name": "express-dry-lazy-handlers-dir",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Automatically register a folder of route handlers",
   "main": "index.js",
   "scripts": {

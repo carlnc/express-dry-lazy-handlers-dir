@@ -39,22 +39,30 @@ function middleware(options) {
                 }
 
                 if (resolved.extensions.includes(viewExtension)) {
+                    // Handler returned an object for us to send to their matching template
+                    // or there was no handler, and we're just rendering the template as is.
                     const context = handler ? handler(req, res, next) : {};
-
                     return res.render(resolved.filePath, context);
 
                 } else if (handler) {
                     const result = handler(req, res, next);
 
-                    if (result && !result.then)
-                        res.send(result);
+                    if (result && result.then) {
+                        return result;              // Pass the promise up the chain
+                    } else if (result) {
+                        return res.send(result);    // Render the String/object
+                    } else {
+                        return;                     // Assume the caller has called res.blah()
+                    }
                 }
+                
+                // else we didn't find a handler ... 404
             }
 
             return next(); // 404
 
         } catch (err) {
-            next(err);
+            return next(err); // Pass exception up to express
         }
     }
 }
