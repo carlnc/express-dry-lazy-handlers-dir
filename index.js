@@ -24,38 +24,44 @@ function middleware(options) {
                     return res.redirect(base + resolved.redirect);
                 }
 
-                req.paramsOrder = [];
+                req.params$order = [];
                 resolved.params.forEach(([k, v]) => {
                     req.params[k] = v;
-                    req.paramsOrder.push(k);
+                    req.params$order.push(k);
                 });
 
-                let handler;
+                if (resolved.extensions[0] !== viewExtension) { // first match is a module (ie: not a template)
 
-                if (resolved.extensions[0] !== viewExtension) {
                     const method  = req.method.toLowerCase();
                     const module  = require(viewsDir + '/' + resolved.filePath);
-                    handler = module && module[method];
-                }
+                    const handler = module && (module[method] || module.use);
 
-                if (resolved.extensions.includes(viewExtension)) {
-                    // Handler returned an object for us to send to their matching template
-                    // or there was no handler, and we're just rendering the template as is.
-                    const context = handler ? handler(req, res, next) : {};
-                    return res.render(resolved.filePath, context);
+                    if (! handler) {
+                        // module found but no handler for this method
+                        return next(); // 404
+                    }
 
-                } else if (handler) {
                     const result = handler(req, res, next);
 
                     if (result && result.then) {
-                        return result;              // Pass the promise up the chain
-                    } else if (result) {
-                        return res.send(result);    // Render the String/object
+                        return result; // Pass the promise up the chain
+                    
+                    } else if (!result || result === res) {
+                        return; // Assume the caller has called res.send()
+
+                    } else if (resolved.extensions.includes(viewExtension)) {
+                        // Handler returned an object for us to send to their matching template
+                        return res.render(resolved.filePath, result);
                     } else {
-                        return;                     // Assume the caller has called res.blah()
+                        // Just send the object/string directly to the browser
+                        return res.send(result);
                     }
+
+                } else { // just render the view without handler data
+                    // There was no handler, and we're just rendering the template as is.
+                    return res.render(resolved.filePath, result || {});
                 }
-                
+
                 // else we didn't find a handler ... 404
             }
 
