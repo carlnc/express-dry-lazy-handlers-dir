@@ -41,20 +41,25 @@ function middleware(options) {
                         return next(); // 404
                     }
 
-                    const result = handler(req, res, next);
+                    const r = handler(req, res, next);
 
-                    if (result && result.then) {
-                        return result; // Pass the promise up the chain
-                    
-                    } else if (!result || result === res) {
-                        return; // Assume the caller has called res.send()
-
-                    } else if (result instanceof Object && resolved.extensions.includes(viewExtension)) {
-                        // Handler returned an object for us to send to their matching template
-                        return res.render(resolved.filePath, result);
+                    if (r && r.then) {
+                        r.then(result => afterHandler(result)).catch(next);
                     } else {
-                        // Just send the object/string directly to the browser
-                        return res.send(result);
+                        afterHandler(r);
+                    }
+
+                    function afterHandler(result) {
+                        if (!result || result === res) {
+                            return; // Assume the caller has called res.send()
+
+                        } else if (result instanceof Object && resolved.extensions.includes(viewExtension)) {
+                            // Handler returned an object for us to send to their matching template
+                            return res.render(resolved.filePath, result);
+                        } else {
+                            // Just send the object/string directly to the browser
+                            return res.send(result);
+                        }
                     }
 
                 } else { // just render the view without handler data
@@ -66,9 +71,10 @@ function middleware(options) {
                 }
 
                 // else we didn't find a handler ... 404
-            }
 
-            return next(); // 404
+            } else { // not resolved
+                return next(); // 404
+            }
 
         } catch (err) {
             return next(err); // Pass exception up to express
